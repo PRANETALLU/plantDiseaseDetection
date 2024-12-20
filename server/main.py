@@ -1,6 +1,10 @@
 from fastapi import FastAPI, File, UploadFile
+from tensorflow import load_model
 
 app = FastAPI()
+
+MODEL_PATH = "plant_disease_model.h5"  # Path to your saved model
+model = load_model(MODEL_PATH)
 
 @app.get("/")
 def read_root():
