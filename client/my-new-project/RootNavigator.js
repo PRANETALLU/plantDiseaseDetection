@@ -9,6 +9,8 @@ import WelcomePage from './pages/Welcome';
 import ScanImage from './pages/ScanImage';
 import HistoryPage from './pages/HistoryPage';
 import DiseaseLibrary from './pages/DiseaseLibrary';
+import CommunityForum from './pages/CommunityForum';
+import CropCareTipsPage from './pages/CropCareTips';
 
 const Stack = createStackNavigator();
 
@@ -26,6 +28,8 @@ const AppStack = () => (
     <Stack.Screen name="Scan Image" component={ScanImage} options={{ headerShown: false }} />
     <Stack.Screen name="History Page" component={HistoryPage} options={{ headerShown: false }} />
     <Stack.Screen name="Disease Library" component={DiseaseLibrary} options={{ headerShown: false }} />
+    <Stack.Screen name="Community Forum" component={CommunityForum} options={{ headerShown: false }} />
+    <Stack.Screen name="Crop Care Tips" component={CropCareTipsPage} options={{ headerShown: false }} />
   </Stack.Navigator>
 );
 

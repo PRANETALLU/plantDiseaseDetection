@@ -1,14 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Avatar, Card, Title, Paragraph } from 'react-native-paper';
 import { useUserAuth } from '../context/UserContext';
 import Header from '../components/Header';
 import CardComponent from '../components/CardComponent';
 
 const HomePage = () => {
   const { user } = useUserAuth();
-
-  console.log('User ID', user)
 
   return (
     <>
@@ -24,7 +21,6 @@ const HomePage = () => {
           <CardComponent route="History Page" icon="history" text="My History" />
           <CardComponent route="Crop Care Tips" icon="leaf" text="Crop Care Tips" />
           <CardComponent route="Community Forum" icon="forum" text="Community Forum" />
-          <CardComponent route="Insights Analytics" icon="chart-line" text="Insights & Analytics" />
         </View>
       </ScrollView>
     </>
@@ -48,10 +44,11 @@ const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'center', // Ensures cards are spaced out
+    marginBottom: 20, // Optional: Adjust to add spacing between the last row and the bottom
   },
   card: {
-    width: '45%',
+    width: '48%', // Ensures two cards fit on the same row with space between them
     marginBottom: 15,
     borderRadius: 8,
     elevation: 3,

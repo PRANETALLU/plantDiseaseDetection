@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#4CAF50', // Green header background for a plant theme
     padding: 15,
+    marginTop: 30, // Adds space at the top to prevent overlap with other icons
   },
   logoText: {
     fontSize: 20,

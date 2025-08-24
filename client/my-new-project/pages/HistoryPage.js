@@ -1,41 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
-import { Card, Button, IconButton } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator, Modal } from 'react-native';
+import { Card, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../supabaseClient';
+import moment from 'moment';
 
 const HistoryPage = () => {
     const navigation = useNavigation();
-    const [history, setHistory] = useState([
-        /*{
-            id: '1',
-            imageUri: 'https://via.placeholder.com/150', // Replace with actual image URI
-            disease: 'Tomato Leaf Blight',
-            scanDate: '2024-12-15',
-        },
-        {
-            id: '2',
-            imageUri: 'https://via.placeholder.com/150',
-            disease: 'Powdery Mildew',
-            scanDate: '2024-12-14',
-        },*/
-    ]);
+    const [history, setHistory] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedScan, setSelectedScan] = useState(null);
 
     const fetchHistory = async () => {
+        setLoading(true);
         const { data, error } = await supabase
             .from('scans')
-            .select('id, user_id, scan_date, image_uri')
+            .select('id, user_id, scan_date, image_uri, diagnosis')
             .order('scan_date', { ascending: false });
 
-        setHistory(data);
+        if (data) {
+            setHistory(data);
+        } else {
+            console.error('Error fetching scans:', error.message);
+        }
+        setLoading(false);
     };
 
     useEffect(() => {
         fetchHistory();
-    }, [])
-
-    console.log('History', history)
+    }, []);
 
     const handleDelete = async (id) => {
         try {
@@ -51,26 +45,25 @@ const HistoryPage = () => {
         }
     };
 
-
     const renderItem = ({ item }) => (
         <Card style={styles.card}>
             <View style={styles.cardContent}>
-                {/* Thumbnail */}
                 <Image source={{ uri: item.image_uri }} style={styles.thumbnail} />
 
-                {/* Disease Info */}
                 <View style={styles.info}>
-                    {/* <Text style={styles.diseaseName}>{item.disease}</Text>*/}
-                    <Text style={styles.scanDate}>Scanned on: {item.scan_date}</Text>
+                    <Text style={styles.scanDate}>Scanned on: {moment(item.scan_date).format('MMMM Do, YYYY, hh:mm:ss A')}</Text>
+                    <Text style={styles.diagnosis}>Diagnosis: {item.diagnosis || 'Not available'}</Text>
                 </View>
 
-                {/* Actions */}
                 <View style={styles.actions}>
                     <IconButton
                         icon="eye"
                         color="#4CAF50"
                         size={24}
-                        onPress={() => navigation.navigate('ScanDetails', { scanId: item.id })}
+                        onPress={() => {
+                            setSelectedScan(item);
+                            setModalVisible(true);
+                        }}
                     />
                     <IconButton
                         icon="delete"
@@ -85,21 +78,45 @@ const HistoryPage = () => {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>My History</Text>
             </View>
 
-            {/* Scan History List */}
-            {history.length > 0 ? (
+            {loading ? (
+                <ActivityIndicator size="large" color="#388E3C" style={styles.loadingIndicator} />
+            ) : history.length > 0 ? (
                 <FlatList
                     data={history}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item) => item.id.toString()}
                     renderItem={renderItem}
                 />
             ) : (
                 <Text style={styles.emptyMessage}>No scan history found.</Text>
             )}
+
+            {/* Modal for Viewing Scan Details */}
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    {selectedScan && (
+                        <>
+                            <Image source={{ uri: selectedScan.image_uri }} style={styles.modalImage} />
+                            <Text style={styles.modalTitle}>Scan Details</Text>
+                            <Text style={styles.modalText}>Scanned on: {moment(selectedScan.scan_date).format('MMMM Do, YYYY, hh:mm:ss A')}</Text>
+                            <Text style={styles.modalText}>Diagnosis: {selectedScan.diagnosis || 'Not available'}</Text>
+                            <IconButton
+                                icon="close"
+                                color="#E53935"
+                                size={30}
+                                onPress={() => setModalVisible(false)}
+                            />
+                        </>
+                    )}
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -109,6 +126,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F9F9F9',
         padding: 10,
+        marginTop: 30,
     },
     header: {
         flexDirection: 'row',
@@ -120,9 +138,6 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: 'bold',
         color: '#388E3C',
-    },
-    exportButton: {
-        borderRadius: 20,
     },
     card: {
         marginVertical: 5,
@@ -143,17 +158,21 @@ const styles = StyleSheet.create({
     info: {
         flex: 1,
     },
-    diseaseName: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#2E7D32',
-    },
     scanDate: {
         fontSize: 14,
         color: '#757575',
     },
+    diagnosis: {
+        fontSize: 14,
+        color: '#388E3C',
+    },
     actions: {
         flexDirection: 'row',
+    },
+    loadingIndicator: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     emptyMessage: {
         textAlign: 'center',
@@ -161,6 +180,29 @@ const styles = StyleSheet.create({
         color: '#9E9E9E',
         marginTop: 20,
     },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 20,
+    },
+    modalImage: {
+        width: 200,
+        height: 200,
+        borderRadius: 10,
+        marginBottom: 20,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalText: {
+        fontSize: 16,
+        color: '#757575',
+        marginBottom: 10,
+    },
 });
 
-export default HistoryPage; 
+export default HistoryPage;

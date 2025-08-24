@@ -24,7 +24,8 @@ export default {
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff"
-      }
+      },
+      permissions: ["CAMERA"]
     },
     web: {
       favicon: "./assets/favicon.png"

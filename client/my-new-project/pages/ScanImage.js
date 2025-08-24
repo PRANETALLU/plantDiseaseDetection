@@ -10,8 +10,6 @@ const ScanImage = () => {
     const [disease, setDisease] = useState(null);
     const { user } = useUserAuth();
 
-    console.log('Image', image)
-
     const pickImage = async () => {
         launchImageLibrary(
             { mediaType: 'photo', quality: 1 },
@@ -27,7 +25,7 @@ const ScanImage = () => {
             }
         );
 
-        try {
+        /*try {
             const { data, error } = await supabase
                 .from('scans')
                 .insert([
@@ -40,52 +38,51 @@ const ScanImage = () => {
         }
         catch (e) {
             console.log('Upload Failed')
-        }
+        }*/
     };
 
     // Function to detect disease using a machine learning model or API
     const detectDisease = async () => {
-        /*if (!image) {
-            Alert.alert('Error', 'Please select an image first!');
+        if (!image) {
+            console.log('Error', 'Please select an image first!');
             return;
         }
 
         try {
-            // Prepare the image for upload
-            const formData = new FormData();
-            formData.append('file', {
-                uri: image.uri,
-                type: 'image/jpeg', // Adjust if needed
-                name: 'scan.jpg',
-            });
-
-            // Send image to the disease detection API (replace with your actual API URL)
-            const response = await axios.post('YOUR_DETECTION_API_URL', formData, {
+            console.log('Image URI', image.uri)
+            const response = await fetch('http://127.0.0.1:8000/predict/', {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                    "Content-Type": "application/json",
                 },
-            });
+                body: JSON.stringify({
+                    image_uri: image.uri
+                }),
+            })
+            const data1 = await response.json();
+            console.log('Data', data1)
+            console.log('Predicted Class', data1.predicted_class)
+            setDisease(data1.predicted_class)
 
-            if (response.data && response.data.disease) {
-                // Update the state with the detected disease
-                setDisease(response.data.disease);
-            } else {
-                Alert.alert('No Disease Detected', 'Unable to detect disease.');
+            try {
+                const { data, error } = await supabase
+                    .from('scans')
+                    .insert([
+                        {
+                            user_id: user.id, // Replace with the logged-in user's ID
+                            scan_date: new Date().toISOString(),
+                            image_uri: image.uri,
+                            diagnosis: data1.predicted_class
+                        },
+                    ]);
             }
-
-            // Optionally, save scan data to Supabase
-            await supabase.from('scans').insert([
-                {
-                    user_id: user.id, // Replace with logged-in user's ID
-                    scan_date: new Date().toISOString(),
-                    image_uri: image.uri,
-                    disease: response.data.disease || 'Unknown',
-                },
-            ]);
-        } catch (error) {
+            catch (e) {
+                console.log('Upload to Supabase Failed')
+            }
+        }
+        catch (error) {
             console.error('Error detecting disease:', error);
-            Alert.alert('Error', 'Unable to detect disease, please try again.');
-        }*/
+        }
     };
 
 
