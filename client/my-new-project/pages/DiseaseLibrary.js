@@ -9,12 +9,15 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { Button } from 'react-native-paper';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const DiseaseLibrary = () => {
   const [diseases, setDiseases] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigation = useNavigation();
 
   // API Key (Replace with your actual key from Plant.id API)
   const API_KEY = 'lblctTMwHGetHOBT1PlL2iTfLquFePzH2xU3I0OczaFG6D4wM8';
@@ -48,8 +51,7 @@ const DiseaseLibrary = () => {
       onPress={() =>
         Alert.alert(
           item.name,
-          `Description: ${item.description || 'No description available.'}\n\nSymptoms: ${
-            item.symptoms || 'Not specified.'
+          `Description: ${item.description || 'No description available.'}\n\nSymptoms: ${item.symptoms || 'Not specified.'
           }`,
           [{ text: 'OK' }]
         )
@@ -65,6 +67,15 @@ const DiseaseLibrary = () => {
 
   return (
     <View style={styles.container}>
+      <Button
+        mode="outlined"
+        onPress={() => navigation.goBack()}
+        icon="arrow-left"
+        style={styles.backButton}
+        labelStyle={styles.backButtonText}
+      >
+        Go Back
+      </Button>
       <Text style={styles.title}>Disease Library</Text>
 
       {loading ? (

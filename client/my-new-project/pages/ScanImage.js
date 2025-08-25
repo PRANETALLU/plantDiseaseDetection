@@ -4,11 +4,13 @@ import { Button } from 'react-native-paper';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { supabase } from '../supabaseClient';
 import { useUserAuth } from '../context/UserContext';
+import { useNavigation } from '@react-navigation/native';
 
 const ScanImage = () => {
     const [image, setImage] = useState(null);
     const [disease, setDisease] = useState(null);
     const { user } = useUserAuth();
+    const navigation = useNavigation();
 
     const pickImage = async () => {
         launchImageLibrary(
@@ -88,7 +90,18 @@ const ScanImage = () => {
 
 
     return (
-        <View style={styles.container}>
+       < View style={styles.container}>
+        {/* Back button */}
+             {/* Go Back Button with Icon */}
+            <Button
+                mode="outlined"
+                onPress={() => navigation.goBack()}
+                icon="arrow-left"
+                style={styles.backButton}
+                labelStyle={styles.backButtonText}
+            >
+                Go Back
+            </Button>
             <Text style={styles.title}>Scan an Image</Text>
 
             {/* Button to pick an image */}

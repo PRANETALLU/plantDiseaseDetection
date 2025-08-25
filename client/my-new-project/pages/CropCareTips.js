@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Button, ScrollView } from "react-native";
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import { Button } from 'react-native-paper';
 
 export default function CropCareTipsPage() {
   const [userQuery, setUserQuery] = useState('');
   const [chatResponses, setChatResponses] = useState([]);
+  const navigation = useNavigation();
 
   // Handle user query and fetch response
   const handleUserQuerySubmit = async () => {
@@ -16,11 +19,11 @@ export default function CropCareTipsPage() {
           },
           body: JSON.stringify({ query: userQuery }), // Send the query as a JSON string
         });
-  
+
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-  
+
         const data = await response.json();
         setChatResponses([...chatResponses, { query: userQuery, response: data.response }]);
         setUserQuery(''); // Clear input field
@@ -29,15 +32,24 @@ export default function CropCareTipsPage() {
       }
     }
   };
-  
+
   return (
     <View style={styles.container}>
+      <Button
+        mode="outlined"
+        onPress={() => navigation.goBack()}
+        icon="arrow-left"
+        style={styles.backButton}
+        labelStyle={styles.backButtonText}
+      >
+        Go Back
+      </Button>
       <Text style={styles.header}>Crop Care Tips</Text>
 
       {/* Chat functionality */}
       <View style={styles.chatContainer}>
         <Text style={styles.chatHeader}>Ask a Question About Crop Care</Text>
-        
+
         {/* User Input for Query */}
         <TextInput
           style={styles.inputField}

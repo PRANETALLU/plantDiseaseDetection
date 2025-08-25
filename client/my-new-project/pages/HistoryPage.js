@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator, Modal } from 'react-native';
-import { Card, IconButton } from 'react-native-paper';
+import { Card, IconButton, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../supabaseClient';
 import moment from 'moment';
@@ -78,6 +78,15 @@ const HistoryPage = () => {
 
     return (
         <View style={styles.container}>
+            <Button
+                mode="outlined"
+                onPress={() => navigation.goBack()}
+                icon="arrow-left"
+                style={styles.backButton}
+                labelStyle={styles.backButtonText}
+            >
+                Go Back
+            </Button>
             <View style={styles.header}>
                 <Text style={styles.title}>My History</Text>
             </View>

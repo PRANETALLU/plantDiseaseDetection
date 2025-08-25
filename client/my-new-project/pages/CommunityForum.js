@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { supabase } from '../supabaseClient';  // Import Supabase client
 import { useUserAuth } from '../context/UserContext';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
+import { Button } from 'react-native-paper';
 
 
-export default function CommunityForum({ navigation }) {
+export default function CommunityForum() {
     const [posts, setPosts] = useState([]);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
@@ -13,6 +15,7 @@ export default function CommunityForum({ navigation }) {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [category, setCategory] = useState('Plant Diseases');
+    const navigation = useNavigation();
 
     const { user } = useUserAuth();
 
@@ -59,6 +62,15 @@ export default function CommunityForum({ navigation }) {
 
     return (
         <View style={styles.container}>
+            <Button
+                mode="outlined"
+                onPress={() => navigation.goBack()}
+                icon="arrow-left"
+                style={styles.backButton}
+                labelStyle={styles.backButtonText}
+            >
+                Go Back
+            </Button>
             <Text style={styles.header}>Community Forum</Text>
 
             <TextInput
