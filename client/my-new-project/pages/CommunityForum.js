@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  FlatList, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Modal, 
-  Alert, 
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Alert,
   ScrollView,
   RefreshControl,
   Dimensions,
-  ActivityIndicator 
+  ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { supabase } from '../supabaseClient';
@@ -34,6 +34,10 @@ export default function CommunityForum() {
   const [refreshing, setRefreshing] = useState(false);
   const { user } = useUserAuth();
   const navigation = useNavigation();
+  const [comments, setComments] = useState({});
+  const [commentInput, setCommentInput] = useState({});
+  const [loadingComments, setLoadingComments] = useState({});
+
 
   const categories = [
     { value: 'All', icon: 'apps', color: '#4CAF50' },
@@ -41,6 +45,48 @@ export default function CommunityForum() {
     { value: 'Farming Tips', icon: 'agriculture', color: '#2196F3' },
     { value: 'General Queries', icon: 'help', color: '#FF9800' }
   ];
+
+  const fetchComments = async (postId) => {
+    setLoadingComments(prev => ({ ...prev, [postId]: true }));
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setComments(prev => ({ ...prev, [postId]: data || [] }));
+    } catch (err) {
+      console.error('Error fetching comments:', err);
+    } finally {
+      setLoadingComments(prev => ({ ...prev, [postId]: false }));
+    }
+  };
+
+  const handleAddComment = async (postId) => {
+    const content = commentInput[postId]?.trim();
+    if (!user || !content) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .insert([{ post_id: postId, user_id: user.id, content }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      setComments(prev => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), data]
+      }));
+      setCommentInput(prev => ({ ...prev, [postId]: '' }));
+    } catch (err) {
+      Alert.alert('Error', 'Failed to add comment.');
+    }
+  };
+
+
 
   const fetchPosts = async () => {
     try {
@@ -73,7 +119,7 @@ export default function CommunityForum() {
 
   const filteredPosts = posts.filter(post =>
     (post.title.toLowerCase().includes(search.toLowerCase()) ||
-     post.content.toLowerCase().includes(search.toLowerCase())) &&
+      post.content.toLowerCase().includes(search.toLowerCase())) &&
     (categoryFilter === 'All' || post.category === categoryFilter)
   );
 
@@ -165,8 +211,7 @@ export default function CommunityForum() {
     return (
       <TouchableOpacity
         style={[styles.postCard, { marginTop: index === 0 ? 0 : 12 }]}
-        onPress={() => navigation.navigate('PostDetail', { postId: item.id })}
-        activeOpacity={0.7}
+        activeOpacity={0.9}
       >
         <View style={styles.postHeader}>
           <View style={styles.categoryBadge}>
@@ -179,8 +224,7 @@ export default function CommunityForum() {
             <View style={styles.postActions}>
               <TouchableOpacity
                 style={styles.editButton}
-                onPress={(e) => {
-                  e.stopPropagation();
+                onPress={() => {
                   setEditingPost(item);
                   setTitle(item.title);
                   setContent(item.content);
@@ -192,10 +236,15 @@ export default function CommunityForum() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={(e) => {
-                  e.stopPropagation();
-                  handleDeletePost(item.id);
-                }}
+                onPress={() => Alert.alert('Delete Post', 'Confirm delete?', [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Delete', style: 'destructive', onPress: async () => {
+                      await supabase.from('posts').delete().eq('id', item.id).eq('user_id', user.id);
+                      setPosts(prev => prev.filter(p => p.id !== item.id));
+                    }
+                  }
+                ])}
               >
                 <Icon name="delete-outline" size={16} color="#F44336" />
               </TouchableOpacity>
@@ -203,9 +252,52 @@ export default function CommunityForum() {
           )}
         </View>
 
-        <Text style={styles.postTitle} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.postContent} numberOfLines={3}>{item.content}</Text>
-        
+        <Text style={styles.postTitle}>{item.title}</Text>
+        <Text style={styles.postContent}>{item.content}</Text>
+
+        {/* Comments Section */}
+        <View style={{ marginTop: 10 }}>
+          {loadingComments[item.id] ? (
+            <ActivityIndicator size="small" color="#4CAF50" />
+          ) : (
+            (comments[item.id] || []).map(comment => (
+              <View key={comment.id} style={{ flexDirection: 'row', marginBottom: 6 }}>
+                <Icon name="person" size={14} color="#757575" style={{ marginRight: 6 }} />
+                <Text style={{ fontSize: 12, color: '#2E2E2E' }}>
+                  {comment.user_id === user.id ? 'You' : 'Community Member'}: {comment.content}
+                </Text>
+              </View>
+            ))
+          )}
+
+          {/* Add Comment Input */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+            <TextInput
+              style={{
+                flex: 1,
+                borderWidth: 1,
+                borderColor: '#E0E0E0',
+                borderRadius: 12,
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                fontSize: 12,
+              }}
+              placeholder="Add a comment..."
+              placeholderTextColor="#A5A5A5"
+              value={commentInput[item.id] || ''}
+              onChangeText={text =>
+                setCommentInput(prev => ({ ...prev, [item.id]: text }))
+              }
+            />
+            <TouchableOpacity
+              style={{ marginLeft: 6 }}
+              onPress={() => handleAddComment(item.id)}
+            >
+              <Icon name="send" size={18} color="#4CAF50" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <View style={styles.postFooter}>
           <View style={styles.authorInfo}>
             <Icon name="person" size={14} color="#757575" />
@@ -227,8 +319,8 @@ export default function CommunityForum() {
           <Icon name="arrow-back" size={24} color="#4CAF50" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Community Forum</Text>
-        <TouchableOpacity 
-          style={styles.headerAction} 
+        <TouchableOpacity
+          style={styles.headerAction}
           onPress={() => setIsModalVisible(true)}
         >
           <Icon name="add" size={24} color="#4CAF50" />
@@ -255,8 +347,8 @@ export default function CommunityForum() {
       </View>
 
       {/* Category Filters */}
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.categoriesSection}
         contentContainerStyle={styles.categoriesContainer}
@@ -270,10 +362,10 @@ export default function CommunityForum() {
             ]}
             onPress={() => setCategoryFilter(cat.value)}
           >
-            <Icon 
-              name={cat.icon} 
-              size={16} 
-              color={categoryFilter === cat.value ? '#FFFFFF' : cat.color} 
+            <Icon
+              name={cat.icon}
+              size={16}
+              color={categoryFilter === cat.value ? '#FFFFFF' : cat.color}
             />
             <Text style={[
               styles.categoryFilterText,
@@ -312,12 +404,12 @@ export default function CommunityForum() {
           <Icon name="forum" size={60} color="#E0E0E0" />
           <Text style={styles.emptyTitle}>No Posts Found</Text>
           <Text style={styles.emptyMessage}>
-            {search || categoryFilter !== 'All' 
+            {search || categoryFilter !== 'All'
               ? 'Try adjusting your search or filter.'
               : 'Be the first to start a conversation!'
             }
           </Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.createPostButton}
             onPress={() => setIsModalVisible(true)}
           >
@@ -329,7 +421,7 @@ export default function CommunityForum() {
 
       {/* Floating Action Button */}
       {posts.length > 0 && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.fab}
           onPress={() => setIsModalVisible(true)}
         >
@@ -367,10 +459,10 @@ export default function CommunityForum() {
                     ]}
                     onPress={() => setCategory(cat.value)}
                   >
-                    <Icon 
-                      name={cat.icon} 
-                      size={16} 
-                      color={category === cat.value ? '#FFFFFF' : cat.color} 
+                    <Icon
+                      name={cat.icon}
+                      size={16}
+                      color={category === cat.value ? '#FFFFFF' : cat.color}
                     />
                     <Text style={[
                       styles.modalCategoryText,
@@ -419,7 +511,7 @@ export default function CommunityForum() {
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[
                   styles.submitButton,
