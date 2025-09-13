@@ -75,6 +75,8 @@ const ScanImage = () => {
             const data = await response.json();
             setDisease(data.predicted_class);
 
+            console.log('Diagnosis Test', data)
+
             // Save to Supabase
             try {
                 await supabase.from('scans').insert([{
