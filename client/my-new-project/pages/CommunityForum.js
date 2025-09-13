@@ -37,6 +37,16 @@ export default function CommunityForum() {
   const [comments, setComments] = useState({});
   const [commentInput, setCommentInput] = useState({});
   const [loadingComments, setLoadingComments] = useState({});
+  const [commentsVisible, setCommentsVisible] = useState({});
+
+  const toggleComments = async (postId) => {
+    const isVisible = commentsVisible[postId];
+    setCommentsVisible(prev => ({ ...prev, [postId]: !isVisible }));
+
+    if (!isVisible && !(comments[postId]?.length > 0)) {
+      await fetchComments(postId); // fetch only when expanding for first time
+    }
+  };
 
 
   const categories = [
@@ -236,15 +246,7 @@ export default function CommunityForum() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => Alert.alert('Delete Post', 'Confirm delete?', [
-                  { text: 'Cancel', style: 'cancel' },
-                  {
-                    text: 'Delete', style: 'destructive', onPress: async () => {
-                      await supabase.from('posts').delete().eq('id', item.id).eq('user_id', user.id);
-                      setPosts(prev => prev.filter(p => p.id !== item.id));
-                    }
-                  }
-                ])}
+                onPress={() => handleDeletePost(item.id)}
               >
                 <Icon name="delete-outline" size={16} color="#F44336" />
               </TouchableOpacity>
@@ -257,45 +259,63 @@ export default function CommunityForum() {
 
         {/* Comments Section */}
         <View style={{ marginTop: 10 }}>
-          {loadingComments[item.id] ? (
-            <ActivityIndicator size="small" color="#4CAF50" />
-          ) : (
-            (comments[item.id] || []).map(comment => (
-              <View key={comment.id} style={{ flexDirection: 'row', marginBottom: 6 }}>
-                <Icon name="person" size={14} color="#757575" style={{ marginRight: 6 }} />
-                <Text style={{ fontSize: 12, color: '#2E2E2E' }}>
-                  {comment.user_id === user.id ? 'You' : 'Community Member'}: {comment.content}
-                </Text>
-              </View>
-            ))
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}
+            onPress={() => toggleComments(item.id)}
+          >
+            <Icon
+              name={commentsVisible[item.id] ? "expand-less" : "expand-more"}
+              size={18}
+              color="#4CAF50"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={{ fontSize: 12, color: '#4CAF50', fontWeight: '500' }}>
+              {commentsVisible[item.id] ? 'Hide Comments' : 'Show Comments'}
+            </Text>
+          </TouchableOpacity>
+
+          {commentsVisible[item.id] && (
+            loadingComments[item.id] ? (
+              <ActivityIndicator size="small" color="#4CAF50" />
+            ) : (
+              (comments[item.id] || []).map(comment => (
+                <View key={comment.id} style={{ flexDirection: 'row', marginBottom: 6 }}>
+                  <Icon name="person" size={14} color="#757575" style={{ marginRight: 6 }} />
+                  <Text style={{ fontSize: 12, color: '#2E2E2E' }}>
+                    {comment.user_id === user.id ? 'You' : 'Community Member'}: {comment.content}
+                  </Text>
+                </View>
+              ))
+            )
           )}
 
-          {/* Add Comment Input */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-            <TextInput
-              style={{
-                flex: 1,
-                borderWidth: 1,
-                borderColor: '#E0E0E0',
-                borderRadius: 12,
-                paddingHorizontal: 10,
-                paddingVertical: 6,
-                fontSize: 12,
-              }}
-              placeholder="Add a comment..."
-              placeholderTextColor="#A5A5A5"
-              value={commentInput[item.id] || ''}
-              onChangeText={text =>
-                setCommentInput(prev => ({ ...prev, [item.id]: text }))
-              }
-            />
-            <TouchableOpacity
-              style={{ marginLeft: 6 }}
-              onPress={() => handleAddComment(item.id)}
-            >
-              <Icon name="send" size={18} color="#4CAF50" />
-            </TouchableOpacity>
-          </View>
+          {commentsVisible[item.id] && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+              <TextInput
+                style={{
+                  flex: 1,
+                  borderWidth: 1,
+                  borderColor: '#E0E0E0',
+                  borderRadius: 12,
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  fontSize: 12,
+                }}
+                placeholder="Add a comment..."
+                placeholderTextColor="#A5A5A5"
+                value={commentInput[item.id] || ''}
+                onChangeText={text =>
+                  setCommentInput(prev => ({ ...prev, [item.id]: text }))
+                }
+              />
+              <TouchableOpacity
+                style={{ marginLeft: 6 }}
+                onPress={() => handleAddComment(item.id)}
+              >
+                <Icon name="send" size={18} color="#4CAF50" />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         <View style={styles.postFooter}>
@@ -310,7 +330,7 @@ export default function CommunityForum() {
       </TouchableOpacity>
     );
   };
-
+  
   return (
     <View style={styles.container}>
       {/* Header */}
