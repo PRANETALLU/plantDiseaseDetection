@@ -330,7 +330,7 @@ export default function CommunityForum() {
       </TouchableOpacity>
     );
   };
-  
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -378,24 +378,32 @@ export default function CommunityForum() {
             key={cat.value}
             style={[
               styles.categoryFilterButton,
-              categoryFilter === cat.value && { backgroundColor: cat.color }
+              categoryFilter === cat.value && { backgroundColor: cat.color },
+              { height: 36 } // <-- fixed height to prevent vertical stretching
             ]}
             onPress={() => setCategoryFilter(cat.value)}
+            activeOpacity={0.8}
           >
             <Icon
               name={cat.icon}
               size={16}
               color={categoryFilter === cat.value ? '#FFFFFF' : cat.color}
             />
-            <Text style={[
-              styles.categoryFilterText,
-              categoryFilter === cat.value && { color: '#FFFFFF' }
-            ]}>
+            <Text
+              style={[
+                styles.categoryFilterText,
+                categoryFilter === cat.value && { color: '#FFFFFF' },
+                { marginLeft: 6 }
+              ]}
+              numberOfLines={1} // ensures text stays in one line
+              ellipsizeMode="tail"
+            >
               {cat.value}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
+
 
       {/* Posts List */}
       {loading ? (
