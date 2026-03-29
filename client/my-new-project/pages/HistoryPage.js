@@ -344,11 +344,11 @@ const HistoryPage = () => {
                                     style={styles.modalPrimaryButton}
                                     onPress={() => {
                                         setModalVisible(false);
-                                        navigation.navigate('Disease Library');
+                                        navigation.navigate('Crop Care Tips');
                                     }}
                                 >
-                                    <Icon name="menu-book" size={20} color="#FFFFFF" />
-                                    <Text style={styles.modalPrimaryButtonText}>Learn More</Text>
+                                    <Icon name="eco" size={20} color="#FFFFFF" />
+                                    <Text style={styles.modalPrimaryButtonText}>Crop Care Tips</Text>
                                 </TouchableOpacity>
                             </View>
                         </ScrollView>

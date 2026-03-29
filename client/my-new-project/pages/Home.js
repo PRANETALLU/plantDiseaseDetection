@@ -13,7 +13,6 @@ const HomePage = () => {
 
   const cardData = [
     { route: "Scan Image", icon: "camera-alt", text: "Scan Plant Disease", color: '#4CAF50', bgColor: '#E8F5E9' },
-    { route: "Disease Library", icon: "menu-book", text: "Disease Library", color: '#2196F3', bgColor: '#E3F2FD' },
     { route: "History Page", icon: "history", text: "My History", color: '#FF9800', bgColor: '#FFF3E0' },
     { route: "Crop Care Tips", icon: "eco", text: "Crop Care Tips", color: '#9C27B0', bgColor: '#F3E5F5' },
     { route: "Community Forum", icon: "forum", text: "Community Forum", color: '#F44336', bgColor: '#FFEBEE' },

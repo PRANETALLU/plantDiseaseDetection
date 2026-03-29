@@ -224,11 +224,11 @@ const ScanImage = () => {
                                 </Button>
                                 <Button
                                     mode="contained"
-                                    onPress={() => navigation.navigate('Disease Library')}
-                                    icon="menu-book"
+                                    onPress={() => navigation.navigate('Crop Care Tips')}
+                                    icon="eco"
                                     style={styles.primaryButton}
                                 >
-                                    Learn More
+                                    Crop Care Tips
                                 </Button>
                             </View>
                         </Card.Content>
