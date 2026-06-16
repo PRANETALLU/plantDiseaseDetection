@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 
 const { width, height } = Dimensions.get('window');
 
 const WelcomePage = () => {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <Header />
@@ -50,7 +53,10 @@ const WelcomePage = () => {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.getStartedButton}>
+            <TouchableOpacity
+              style={styles.getStartedButton}
+              onPress={() => navigation.navigate('Login')}
+            >
               <View style={styles.buttonContainer}>
                 <Text style={styles.buttonText}>Get Started</Text>
               </View>

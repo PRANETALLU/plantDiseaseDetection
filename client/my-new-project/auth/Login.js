@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, StatusBar, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, StatusBar, KeyboardAvoidingView, Platform, Alert, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useUserAuth } from '../context/UserContext';
 
@@ -9,6 +10,7 @@ const LoginPage = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn } = useUserAuth();
+  const insets = useSafeAreaInsets();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -40,8 +42,9 @@ const LoginPage = ({ navigation }) => {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardContainer}
         >
+          <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.overlay}>
-            <View style={styles.container}>
+            <View style={[styles.container, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
               {/* Logo/Brand Section */}
               <View style={styles.brandSection}>
                 <View style={styles.logoContainer}>
@@ -115,6 +118,7 @@ const LoginPage = ({ navigation }) => {
               </View>
             </View>
           </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </ImageBackground>
     </>
@@ -132,10 +136,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     paddingHorizontal: 30,
-    paddingTop: 60,
     justifyContent: 'space-between',
   },
   brandSection: {
@@ -254,7 +260,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
   signupText: {
     color: 'rgba(255, 255, 255, 0.9)',

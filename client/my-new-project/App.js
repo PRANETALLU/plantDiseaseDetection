@@ -1,13 +1,16 @@
 // App.js
 import React from 'react';
-import { UserAuthProvider } from './context/UserContext';  // Import the UserAuthProvider
-import RootNavigator from './RootNavigator';  // Import the RootNavigator
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { UserAuthProvider } from './context/UserContext';
+import RootNavigator from './RootNavigator';
 
 const App = () => {
   return (
-    <UserAuthProvider>
-      <RootNavigator />
-    </UserAuthProvider>
+    <SafeAreaProvider>
+      <UserAuthProvider>
+        <RootNavigator />
+      </UserAuthProvider>
+    </SafeAreaProvider>
   );
 };
 

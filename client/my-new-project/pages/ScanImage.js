@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Alert, ActivityIndicator, Animated, TouchableOpacity, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Card } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
@@ -15,6 +16,7 @@ const ScanImage = () => {
     const [loading, setLoading] = useState(false);
     const { user } = useUserAuth();
     const navigation = useNavigation();
+    const insets = useSafeAreaInsets();
     const scaleAnim = new Animated.Value(1);
 
     const imagePickerOptions = {
@@ -104,7 +106,7 @@ const ScanImage = () => {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
                 <Button
                     mode="text"
                     onPress={() => navigation.goBack()}
@@ -262,10 +264,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingTop: 40,
         paddingBottom: 16,
         backgroundColor: '#ffffff',
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
     },
     backButton: {
         marginLeft: -8,

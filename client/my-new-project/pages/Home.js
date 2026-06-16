@@ -185,6 +185,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+  cardContent: {
+    padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    minHeight: 130,
+    justifyContent: 'space-between',
+  },
   cardGradient: {
     padding: 20,
     borderRadius: 16,

@@ -13,6 +13,7 @@ import {
   Dimensions,
   ActivityIndicator
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { supabase } from '../supabaseClient';
 import { useUserAuth } from '../context/UserContext';
@@ -34,6 +35,7 @@ export default function CommunityForum() {
   const [refreshing, setRefreshing] = useState(false);
   const { user } = useUserAuth();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [comments, setComments] = useState({});
   const [commentInput, setCommentInput] = useState({});
   const [loadingComments, setLoadingComments] = useState({});
@@ -334,7 +336,7 @@ export default function CommunityForum() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color="#4CAF50" />
         </TouchableOpacity>
@@ -570,10 +572,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 50,
     paddingBottom: 16,
     backgroundColor: '#FFFFFF',
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
   },
   backButton: {
     width: 45,

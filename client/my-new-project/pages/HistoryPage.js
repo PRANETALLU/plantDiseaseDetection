@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator, TouchableOpacity, Modal, ScrollView, RefreshControl, Alert, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../supabaseClient';
@@ -11,6 +12,7 @@ const { width } = Dimensions.get('window');
 const HistoryPage = () => {
     const navigation = useNavigation();
     const { user } = useUserAuth();
+    const insets = useSafeAreaInsets();
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
@@ -173,7 +175,7 @@ const HistoryPage = () => {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
                 <TouchableOpacity 
                     style={styles.backButton} 
                     onPress={() => navigation.goBack()}
@@ -363,13 +365,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F8F9FA',
-        paddingTop: 50,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingVertical: 16,
+        paddingBottom: 16,
         backgroundColor: '#FFFFFF',
         elevation: 2,
         shadowColor: '#000',

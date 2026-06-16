@@ -1,15 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUserAuth } from '../context/UserContext';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons'; // Expo icons for better visuals
+import { Ionicons } from '@expo/vector-icons';
 
 const Header = () => {
-  const { user, logOut } = useUserAuth(); // Access user state from context
-  const navigation = useNavigation(); // Access navigation from React Navigation
+  const { user, logOut } = useUserAuth();
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.headerContainer}>
+    <View style={[styles.headerContainer, { paddingTop: insets.top + 12 }]}>
       <Text style={styles.logoText}>PlantDetect</Text>
 
       <View style={styles.buttonContainer}>
@@ -46,9 +48,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#4CAF50', // Green header background for a plant theme
-    padding: 15,
-    marginTop: 30, // Adds space at the top to prevent overlap with other icons
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 16,
+    paddingBottom: 14,
   },
   logoText: {
     fontSize: 20,
@@ -63,19 +65,20 @@ const styles = StyleSheet.create({
   headerButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#388E3C', // Slightly darker green for buttons
-    borderRadius: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    backgroundColor: '#388E3C',
+    borderRadius: 8,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
     marginLeft: 10,
   },
   signupButton: {
-    backgroundColor: '#FFC107', // Highlight Sign Up button with a yellow color
+    backgroundColor: '#FFC107',
   },
   buttonText: {
     color: 'white',
     fontSize: 14,
     marginLeft: 5,
+    fontWeight: '600',
   },
 });
 

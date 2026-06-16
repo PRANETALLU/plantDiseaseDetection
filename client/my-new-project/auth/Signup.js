@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, StatusBar, KeyboardAvoidingView, Platform, Alert, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useUserAuth } from '../context/UserContext';
 
@@ -14,6 +15,7 @@ const SignupPage = ({ navigation }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signUp } = useUserAuth();
+  const insets = useSafeAreaInsets();
 
   const updateFormData = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -67,7 +69,7 @@ const SignupPage = ({ navigation }) => {
         >
           <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.overlay}>
-              <View style={styles.container}>
+              <View style={[styles.container, { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 20 }]}>
                 {/* Header with Back Button */}
                 <View style={styles.header}>
                   <TouchableOpacity 
@@ -211,7 +213,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 30,
-    paddingTop: 60,
     justifyContent: 'space-between',
   },
   header: {

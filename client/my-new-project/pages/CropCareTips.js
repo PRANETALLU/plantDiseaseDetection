@@ -10,6 +10,7 @@ import {
   Alert,
   Dimensions
 } from "react-native";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -20,6 +21,7 @@ export default function CropCareTipsPage() {
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   const quickTips = [
     "How to water tomatoes properly?",
@@ -71,7 +73,7 @@ export default function CropCareTipsPage() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color="#4CAF50" />
         </TouchableOpacity>
@@ -129,7 +131,7 @@ export default function CropCareTipsPage() {
       </ScrollView>
 
       {/* Input Section */}
-      <View style={styles.inputSection}>
+      <View style={[styles.inputSection, { paddingBottom: insets.bottom + 15 }]}>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.inputField}
@@ -162,10 +164,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 50,
     paddingBottom: 16,
     backgroundColor: '#FFFFFF',
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
   },
   backButton: {
     width: 45,
@@ -293,8 +298,12 @@ const styles = StyleSheet.create({
   inputSection: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingTop: 15,
     elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
   },
   inputContainer: {
     flexDirection: 'row',
