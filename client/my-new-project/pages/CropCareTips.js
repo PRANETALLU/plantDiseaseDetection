@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import { API_BASE_URL } from '../config/env';
 
 const { width } = Dimensions.get('window');
 
@@ -41,7 +42,7 @@ export default function CropCareTipsPage() {
     setUserQuery('');
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/chat/', {
+      const response = await fetch(`${API_BASE_URL}/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: currentQuery }),
